@@ -1,0 +1,23 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { BrainCircuit, Check, X } from 'lucide-react'
+import { useState } from 'react'
+import { api } from '../lib/api'
+import type { Candidate, Project, Ruleset } from '../lib/types'
+import { Badge, Button, Field, Select, Textarea } from './ui'
+
+type Review = Candidate & { accepted?: boolean; editedClass: string; functionId: string; parentId: string }
+
+export function InferenceReview({ project, ruleset }: { project: Project; ruleset?: Ruleset }) {
+  const [text, setText] = useState('Joint 2 rotates the product using a servo motor.\nAn encoder is mounted directly on the motor.\nThere is also a separate limit sensor.')
+  const [queryId, setQueryId] = useState('')
+  const [reviews, setReviews] = useState<Review[]>([])
+  const queryClient = useQueryClient()
+  const infer = useMutation({ mutationFn: () => api.infer(project.id, text), onSuccess: (data) => { setQueryId(data.query_id); setReviews(data.candidates.map((item) => ({ ...item, editedClass: item.class_code, functionId: project.functions.find((fn) => fn.number === item.function_number)?.id ?? '', parentId: '' }))) } })
+  const approve = useMutation({ mutationFn: () => api.approve(queryId, reviews.map((item) => ({ candidate_key: item.key, accepted: item.accepted === true, label: item.label, class_code: item.editedClass, function_id: item.functionId || null, parent_component_id: item.parentId || null, prediction: item }))), onSuccess: async () => { setReviews([]); setQueryId(''); await queryClient.invalidateQueries({ queryKey: ['project', project.id] }) } })
+  const update = (index: number, change: Partial<Review>) => setReviews((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, ...change } : item))
+  return <div className="h-full overflow-auto p-5"><div className="max-w-4xl"><p className="section-kicker">Non-authoritative inference</p><h2 className="text-xl font-bold">Candidate review</h2><p className="mt-1 text-sm text-slate-500">Text produces semantic proposals only. Nothing enters the project until you approve it; the deterministic compiler generates RDS afterward.</p>
+    <div className="mt-5 grid gap-3"><Textarea rows={5} value={text} onChange={(event) => setText(event.target.value)}/><Button className="w-fit" onClick={() => infer.mutate()} disabled={!text.trim() || infer.isPending}><BrainCircuit size={15}/>Detect candidates</Button></div>
+    <div className="mt-6 grid gap-3">{reviews.map((item, index) => <article key={item.key} className={`border-l-4 bg-white p-4 shadow-sm ${item.accepted === true ? 'border-emerald-500' : item.accepted === false ? 'border-red-400 opacity-65' : 'border-amber-400'}`}><div className="flex items-start justify-between"><div><h3 className="font-bold">{item.label} detected</h3><p className="mt-1 text-xs italic text-slate-500">“{item.evidence}”</p></div><Badge tone="warning">Review required</Badge></div><div className="mt-4 grid grid-cols-3 gap-3"><Field label={`Class · ${Math.round(item.class_confidence * 100)}%`}><Select value={item.editedClass} onChange={(e) => update(index, { editedClass: e.target.value })}>{Object.entries(ruleset?.classes ?? {}).map(([code, definition]) => <option key={code} value={code}>{code} — {definition.name.replaceAll('_', ' ')}</option>)}</Select></Field><Field label={`Function · ${Math.round(item.function_confidence * 100)}%`}><Select value={item.functionId} onChange={(e) => update(index, { functionId: e.target.value })}><option value="">Select…</option>{project.functions.map((fn) => <option key={fn.id} value={fn.id}>=M{fn.number} — {fn.label}</option>)}</Select></Field><Field label={`Parent · ${Math.round(item.parent_confidence * 100)}%`}><Select value={item.parentId} onChange={(e) => update(index, { parentId: e.target.value })}><option value="">Independent</option>{project.components.map((component) => <option key={component.id} value={component.id}>{component.designation} — {component.label}</option>)}</Select></Field></div><div className="mt-3 flex gap-2"><Button className="bg-emerald-700 hover:bg-emerald-800" onClick={() => update(index, { accepted: true })}><Check size={13}/>Accept</Button><Button className="border-red-300 bg-white text-red-700 hover:bg-red-50" onClick={() => update(index, { accepted: false })}><X size={13}/>Reject</Button></div></article>)}</div>
+    {reviews.length > 0 && <div className="mt-5 flex justify-end"><Button onClick={() => approve.mutate()} disabled={reviews.some((item) => item.accepted === undefined) || approve.isPending}>Commit reviewed structures</Button></div>}
+  </div></div>
+}

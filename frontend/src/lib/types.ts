@@ -1,0 +1,9 @@
+export type Issue = { code: string; severity: 'ERROR' | 'WARNING' | 'INFO'; entity_id: string | null; message: string; possible_fix?: string }
+export type FunctionNode = { id: string; project_id: string; number: number; label: string; description: string; parent_id: string | null }
+export type Component = { id: string; project_id: string; function_id: string; parent_component_id: string | null; class_code: string; allocated_number: number; label: string; description: string; source_type: string; designation: string; valid: boolean; tokens: { value: string; meaning: string }[]; issues: Issue[]; function_label: string; function_number: number; parent_label: string | null }
+export type Relation = { id: string; source_component_id: string; target_component_id: string; relation_type: string }
+export type Project = { id: string; name: string; description: string; ruleset_id: string; functions: FunctionNode[]; components: Component[]; relations: Relation[]; validation: Issue[] }
+export type ProjectSummary = Pick<Project, 'id' | 'name' | 'description' | 'ruleset_id'> & { updated_at: string }
+export type ClassDefinition = { name: string; aliases: string[] }
+export type Ruleset = { id: string; name: string; version: string; classes: Record<string, ClassDefinition> }
+export type Candidate = { key: string; label: string; class_code: string; class_name: string; class_confidence: number; function_number: number | null; function_confidence: number; parent_key: string | null; parent_confidence: number; evidence: string }
