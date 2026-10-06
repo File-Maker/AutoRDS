@@ -1,0 +1,52 @@
+classes:
+  B:
+    name: sensing_object
+    aliases: [sensor, encoder, limit sensor, proximity sensor, switch, detector]
+  C:
+    name: storing_object
+    aliases: [storage, tank, accumulator, battery]
+  E:
+    name: emitting_object
+    aliases: [lamp, beacon, speaker, transmitter]
+  F:
+    name: protecting_object
+    aliases: [fuse, circuit breaker, guard, protector]
+  G:
+    name: generating_object
+    aliases: [generator, pump, fan, compressor]
+  H:
+    name: matter_processing_object
+    aliases: [filter, mixer, separator, heater]
+  K:
+    name: information_processing_object
+    aliases: [controller, plc, processor, relay]
+  M:
+    name: driving_object
+    aliases: [motor, servo, stepper, actuator, drive]
+  N:
+    name: covering_object
+    aliases: [cover, cabinet, enclosure, housing]
+  P:
+    name: presenting_object
+    aliases: [display, indicator, gauge, hmi]
+  Q:
+    name: controlling_object
+    aliases: [valve, switchgear, contactor, control valve]
+  R:
+    name: restricting_object
+    aliases: [resistor, brake, damper, restrictor]
+  S:
+    name: human_interacting_object
+    aliases: [button, selector, lever, pedal]
+  T:
+    name: transforming_object
+    aliases: [transformer, converter, gearbox, inverter]
+  U:
+    name: holding_object
+    aliases: [support, bracket, clamp, mount]
+  W:
+    name: guiding_object
+    aliases: [cable, pipe, duct, guide]
+  X:
+    name: interfacing_object
+    aliases: [connector, terminal, plug, socket]

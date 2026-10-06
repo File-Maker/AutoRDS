@@ -1,0 +1,25 @@
+id: ee3_2026_27
+name: EE3 Mechatronics 2026-2027
+version: 1.0.0
+standard_basis:
+  - IEC_81346_1
+  - IEC_81346_2_2019
+aspects:
+  function: {prefix: "="}
+  product: {prefix: "-"}
+  location: {prefix: "+"}
+ee3:
+  function_pattern: "M{number}"
+  require_function_prefix: true
+product:
+  containment_separator: "."
+  preserve_allocated_numbers: true
+numbering:
+  strategy: scoped_sequence
+  resequence_on_delete: false
+validation:
+  duplicate_designations: error
+  missing_function: error
+  unknown_class: error
+  cyclic_containment: error
+  ambiguous_parent: warning
